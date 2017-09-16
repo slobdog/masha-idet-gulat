@@ -14,6 +14,10 @@ class App extends Component {
       isSheGoing: null,
     }
     this.onGoingResponseAction = this.onGoingResponseAction.bind(this);
+    this.setCurrentView = this.setCurrentView.bind(this);
+  }
+  setCurrentView(view) {
+    this.setState({ currentView: view });
   }
   onGoingResponseAction(answer) {
     this.setState({ isSheGoing: answer });
@@ -33,7 +37,7 @@ class App extends Component {
         currentComponent = <OtherTime onGoingResponseAction={this.onGoingResponseAction} />
         break;
       case 'shes_going':
-        currentComponent = <WhenIsSheGoing />
+        currentComponent = <WhenIsSheGoing setCurrentView={this.setCurrentView} />
         break;
       default:
         currentComponent = <Home onGoingResponseAction={this.onGoingResponseAction} />
