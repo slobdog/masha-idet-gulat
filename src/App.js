@@ -4,6 +4,8 @@ import Home from './Home';
 import OtherTime from './OtherTime';
 import WhenIsSheGoing from './WhenIsSheGoing';
 import './App.css';
+import firebaseInst from './firebase';
+
 
 class App extends Component {
   constructor(props) {
@@ -11,9 +13,19 @@ class App extends Component {
     this.state = {
       currentView: 'home',
       isSheGoing: null,
+      isApproved: false,
     }
     this.onGoingResponseAction = this.onGoingResponseAction.bind(this);
     this.setCurrentView = this.setCurrentView.bind(this);
+  }
+  componentDidMount() {
+    const db = firebaseInst.database();
+    db.ref().child('date').on('value', snap => {
+      if (snap.val()) {
+        this.setState({ isApproved: snap.val().isApproved });
+      }
+    })
+    console.log(this.state)
   }
   setCurrentView(view) {
     this.setState({ currentView: view });
@@ -28,9 +40,10 @@ class App extends Component {
   }
   render() {
     let currentComponent = '';
+    console.log(this.state)
     switch (this.state.currentView) {
       case 'home':
-        currentComponent = <Home onGoingResponseAction={this.onGoingResponseAction} />
+        currentComponent = this.state.isApproved ? <WhenIsSheGoing setCurrentView={this.setCurrentView} /> : <Home onGoingResponseAction={this.onGoingResponseAction} />
         break;
       case 'other_time':
         currentComponent = <OtherTime onGoingResponseAction={this.onGoingResponseAction} />
@@ -39,7 +52,7 @@ class App extends Component {
         currentComponent = <WhenIsSheGoing setCurrentView={this.setCurrentView} />
         break;
       default:
-        currentComponent = <Home onGoingResponseAction={this.onGoingResponseAction} />
+        currentComponent =  this.state.isApproved ? <WhenIsSheGoing setCurrentView={this.setCurrentView} /> : <Home onGoingResponseAction={this.onGoingResponseAction} />
     }
     return (
       <div className="container">

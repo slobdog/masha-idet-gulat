@@ -71,7 +71,7 @@ class WhenIsSheGoing extends Component {
       </div>
     );
     const btn = this.state.isApproved
-                ? <button className="btn btn-default btn-block" onClick={this.planChanges}>Планы немного меняются</button>
+                ? <button className="btn btn-danger btn-block" onClick={this.planChanges}>Планы немного меняются</button>
                 : <button type="submit" className="btn btn-success btn-block" disabled={this.state.isLoading}>Маша идет гулять!</button>
     return (
       <form onSubmit={this.onFormSubmit}>
