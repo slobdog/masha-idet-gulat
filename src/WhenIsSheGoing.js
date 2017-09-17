@@ -23,14 +23,14 @@ class WhenIsSheGoing extends Component {
     this.handleLateChange = this.handleLateChange.bind(this);
     this.handleLateTimeChange = this.handleLateTimeChange.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
-    this.handleApproveChange = this.handleApproveChange.bind(this);
+    this.postData = this.postData.bind(this);
+    this.planChanges = this.planChanges.bind(this);
   }
   componentDidMount() {
     this.setState({ isLoading: true });
     const db = firebaseInst.database();
     db.ref().on('value', snap => {
       if (snap.val()) {
-        console.log(snap.val().date)
         this.setState(snap.val().date)
       }
       this.setState({ isLoading: false });
@@ -52,61 +52,52 @@ class WhenIsSheGoing extends Component {
   handleLateTimeChange(timeWillBeLate) {
     this.setState({ lateTime: timeWillBeLate.target.value })
   }
-  handleApproveChange(val) {
-    const isApproved = 'checkbox' ? val.target.checked : val.target.value;
-    this.setState({ isApproved: isApproved })
+  planChanges(ev) {
+    ev.preventDefault();
+    this.setState({ isLoading: true, isApproved: false }, this.postData)
   }
   onFormSubmit(ev) {
     ev.preventDefault();
-    console.log(this.state)
-    this.setState({ isLoading: true })
-    firebaseInst.database().ref().set({ date: this.state })
-      .then(() => {
-        this.setState({ isLoading: false });
-        this.props.setCurrentView('home');
-      })
+    this.setState({ isLoading: true, isApproved: true }, this.postData)
+  }
+  postData() {
+    firebaseInst.database().ref().set({ date: this.state }).then(() => this.setState({ isLoading: false }));
   }
   render() {
     const lateTime = (
       <div className="form-group">
         <label htmlFor="exampleInputPassword1">На сколько?</label>
-        <input className="form-control" value={this.state.lateTime} onChange={this.handleLateTimeChange} />
+        <input className="form-control" value={this.state.lateTime} onChange={this.handleLateTimeChange} disabled={this.state.isApproved} />
       </div>
     );
+    const btn = this.state.isApproved
+                ? <button className="btn btn-default btn-block" onClick={this.planChanges}>Планы немного меняются</button>
+                : <button type="submit" className="btn btn-success btn-block" disabled={this.state.isLoading}>Маша идет гулять!</button>
     return (
       <form onSubmit={this.onFormSubmit}>
         <div className="form-group">
           <label htmlFor="exampleInputEmail1">Тебе удобно в этот день?</label>
-          <DatePicker dateFormat="DD/MM/YYYY" minDate={moment()} onChange={this.handleDateChange} selected={moment(this.state.date)} locale="en-gb" />
+          <DatePicker dateFormat="DD/MM/YYYY" minDate={moment()} onChange={this.handleDateChange} selected={moment(this.state.date)} locale="en-gb" disabled={this.state.isApproved} />
           <small className="form-text text-muted">Если нет - можешь выбрать другой день</small>
         </div>
         <div className="form-group">
           <label htmlFor="exampleInputPassword1">В какое время?</label>
-          <input className="form-control" value={this.state.time} onChange={this.handleTimeChange} />
+          <input className="form-control" value={this.state.time} onChange={this.handleTimeChange} disabled={this.state.isApproved} />
           <small className="form-text text-muted">Тоже самое со временем</small>
         </div>
         <div className="form-group">
           <label htmlFor="exampleInputPassword1">Куда пойдем</label>
-          <input className="form-control" value={this.state.place} onChange={this.handlePlaceChange} />
+          <input className="form-control" value={this.state.place} onChange={this.handlePlaceChange} disabled={this.state.isApproved} />
           <small className="form-text text-muted">Если не нравится место - выбери другое</small>
         </div>
         <div className="form-check">
           <label className="form-check-label">
-            <input type="checkbox" className="form-check-input" defaultChecked={this.state.late} value={this.state.late} onChange={this.handleLateChange} />
+            <input type="checkbox" className="form-check-input" defaultChecked={this.state.late} value={this.state.late} onChange={this.handleLateChange} disabled={this.state.isApproved} />
             Ты опоздаешь?
           </label>
         </div>
         { this.state.late ? lateTime : null }
-        <div className="form-check">
-          <label className="form-check-label">
-            <input type="checkbox" className="form-check-input" defaultChecked={this.state.isApproved} value={this.state.isApproved} onChange={this.handleApproveChange} />
-            Вроде все правильно :)
-          </label>
-        </div>
-        <button type="submit" className="btn btn-success btn-block has-spinner" disabled={this.state.isLoading}>
-          <span className="spinner"><i className="icon-spin icon-refresh"></i></span>
-          Маша идет гулять!
-        </button>
+        { btn }
       </form>
     );
   }

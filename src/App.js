@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Home from './Home';
 import OtherTime from './OtherTime';
@@ -44,8 +43,12 @@ class App extends Component {
     }
     return (
       <div className="container">
-        <h1 className="text-center">Маша идет гулять?</h1>
-        { currentComponent }
+        <div className="row">
+          <div className="col-md-12">
+            <h1 className="text-center">Маша идет гулять?</h1>
+            { currentComponent }
+          </div>
+        </div>
       </div>
     );
   }
